@@ -1,0 +1,574 @@
+﻿@{
+    ViewData["Title"] = "Service Request Status";
+}
+
+<link rel="stylesheet" href="~/css/service-request.css" asp-append-version="true" />
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-clipboard-check me-2"></i>Track Your Service Requests
+            </h2>
+            <p class="text-muted mb-0">Monitor the progress of your submitted service requests</p>
+        </div>
+        <a href="@Url.Action("Create", "ReportIssues")" class="btn btn-primary" style="border-radius: 20px;">
+            <i class="bi bi-plus-circle me-1"></i>New Request
+        </a>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card search-card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search by Reference Number...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="inprogress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <option value="sanitation">Sanitation</option>
+                        <option value="roads">Roads</option>
+                        <option value="utilities">Utilities</option>
+                        <option value="water">Water</option>
+                        <option value="electricity">Electricity</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-card-pending">
+                <div class="stat-icon">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">2</h3>
+                    <p class="stat-label">Pending</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-card-progress">
+                <div class="stat-icon">
+                    <i class="bi bi-gear-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">1</h3>
+                    <p class="stat-label">In Progress</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-card-resolved">
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">3</h3>
+                    <p class="stat-label">Resolved</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-card-rejected">
+                <div class="stat-icon">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">1</h3>
+                    <p class="stat-label">Rejected</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Requests List -->
+    <div class="row g-4" id="requestsContainer">
+        <!-- Request 1 - Pending -->
+        <div class="col-12" data-status="pending" data-category="sanitation">
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="request-ref">
+                        <i class="bi bi-hash"></i>
+                        <span class="ref-number">REQ-2024-001</span>
+                        <button class="btn btn-sm btn-copy" onclick="copyReference('REQ-2024-001')" title="Copy Reference Number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <span class="badge status-badge status-pending">
+                        <i class="bi bi-hourglass-split me-1"></i>Pending
+                    </span>
+                </div>
+                <div class="request-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="request-title">
+                                <i class="bi bi-trash me-2 text-muted"></i>Sanitation Issue
+                            </h5>
+                            <p class="request-description">
+                                Overflowing waste bins on Main Street near the city center. Requires immediate attention as it's causing sanitation concerns.
+                            </p>
+                            <div class="request-details">
+                                <span class="detail-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Main Street, Cape Town CBD
+                                </span>
+                                <span class="detail-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    Nov 8, 2024
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="request-timeline">
+                                <div class="timeline-item active">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Submitted</div>
+                                        <div class="timeline-time">Nov 8, 2024 10:30 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Under Review</div>
+                                        <div class="timeline-time">Pending</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Resolved</div>
+                                        <div class="timeline-time">Pending</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request 2 - In Progress -->
+        <div class="col-12" data-status="inprogress" data-category="roads">
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="request-ref">
+                        <i class="bi bi-hash"></i>
+                        <span class="ref-number">REQ-2024-002</span>
+                        <button class="btn btn-sm btn-copy" onclick="copyReference('REQ-2024-002')" title="Copy Reference Number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <span class="badge status-badge status-inprogress">
+                        <i class="bi bi-gear-fill me-1"></i>In Progress
+                    </span>
+                </div>
+                <div class="request-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="request-title">
+                                <i class="bi bi-cone-striped me-2 text-muted"></i>Road Maintenance
+                            </h5>
+                            <p class="request-description">
+                                Large pothole on Victoria Road causing traffic issues and potential vehicle damage. Road marking also needs attention.
+                            </p>
+                            <div class="request-details">
+                                <span class="detail-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Victoria Road, Green Point
+                                </span>
+                                <span class="detail-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    Nov 5, 2024
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="request-timeline">
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Submitted</div>
+                                        <div class="timeline-time">Nov 5, 2024 2:15 PM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item active">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Under Review</div>
+                                        <div class="timeline-time">Nov 6, 2024 9:00 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Resolved</div>
+                                        <div class="timeline-time">Est. Nov 12, 2024</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request 3 - Resolved -->
+        <div class="col-12" data-status="resolved" data-category="water">
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="request-ref">
+                        <i class="bi bi-hash"></i>
+                        <span class="ref-number">REQ-2024-003</span>
+                        <button class="btn btn-sm btn-copy" onclick="copyReference('REQ-2024-003')" title="Copy Reference Number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <span class="badge status-badge status-resolved">
+                        <i class="bi bi-check-circle-fill me-1"></i>Resolved
+                    </span>
+                </div>
+                <div class="request-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="request-title">
+                                <i class="bi bi-droplet-fill me-2 text-muted"></i>Water Leak
+                            </h5>
+                            <p class="request-description">
+                                Water leak from municipal pipe causing flooding in the street. Issue has been successfully repaired.
+                            </p>
+                            <div class="request-details">
+                                <span class="detail-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Long Street, City Centre
+                                </span>
+                                <span class="detail-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    Oct 28, 2024
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="request-timeline">
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Submitted</div>
+                                        <div class="timeline-time">Oct 28, 2024 11:45 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Under Review</div>
+                                        <div class="timeline-time">Oct 29, 2024 8:30 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Resolved</div>
+                                        <div class="timeline-time">Nov 2, 2024 3:00 PM</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request 4 - Pending (Electricity) -->
+        <div class="col-12" data-status="pending" data-category="electricity">
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="request-ref">
+                        <i class="bi bi-hash"></i>
+                        <span class="ref-number">REQ-2024-004</span>
+                        <button class="btn btn-sm btn-copy" onclick="copyReference('REQ-2024-004')" title="Copy Reference Number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <span class="badge status-badge status-pending">
+                        <i class="bi bi-hourglass-split me-1"></i>Pending
+                    </span>
+                </div>
+                <div class="request-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="request-title">
+                                <i class="bi bi-lightning-charge-fill me-2 text-muted"></i>Electricity Issue
+                            </h5>
+                            <p class="request-description">
+                                Street light not working on Adderley Street creating safety concerns for pedestrians at night.
+                            </p>
+                            <div class="request-details">
+                                <span class="detail-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Adderley Street, Cape Town
+                                </span>
+                                <span class="detail-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    Nov 7, 2024
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="request-timeline">
+                                <div class="timeline-item active">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Submitted</div>
+                                        <div class="timeline-time">Nov 7, 2024 6:20 PM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Under Review</div>
+                                        <div class="timeline-time">Pending</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Resolved</div>
+                                        <div class="timeline-time">Pending</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request 5 - Resolved (Utilities) -->
+        <div class="col-12" data-status="resolved" data-category="utilities">
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="request-ref">
+                        <i class="bi bi-hash"></i>
+                        <span class="ref-number">REQ-2024-005</span>
+                        <button class="btn btn-sm btn-copy" onclick="copyReference('REQ-2024-005')" title="Copy Reference Number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <span class="badge status-badge status-resolved">
+                        <i class="bi bi-check-circle-fill me-1"></i>Resolved
+                    </span>
+                </div>
+                <div class="request-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="request-title">
+                                <i class="bi bi-tools me-2 text-muted"></i>Utilities Maintenance
+                            </h5>
+                            <p class="request-description">
+                                Damaged public bench at Greenmarket Square. Bench has been repaired and is now safe for public use.
+                            </p>
+                            <div class="request-details">
+                                <span class="detail-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Greenmarket Square
+                                </span>
+                                <span class="detail-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    Oct 20, 2024
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="request-timeline">
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Submitted</div>
+                                        <div class="timeline-time">Oct 20, 2024 1:10 PM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Under Review</div>
+                                        <div class="timeline-time">Oct 21, 2024 9:15 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Resolved</div>
+                                        <div class="timeline-time">Oct 25, 2024 4:30 PM</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request 6 - Resolved (Roads) -->
+        <div class="col-12" data-status="resolved" data-category="roads">
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="request-ref">
+                        <i class="bi bi-hash"></i>
+                        <span class="ref-number">REQ-2024-006</span>
+                        <button class="btn btn-sm btn-copy" onclick="copyReference('REQ-2024-006')" title="Copy Reference Number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <span class="badge status-badge status-resolved">
+                        <i class="bi bi-check-circle-fill me-1"></i>Resolved
+                    </span>
+                </div>
+                <div class="request-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="request-title">
+                                <i class="bi bi-cone-striped me-2 text-muted"></i>Broken Traffic Light
+                            </h5>
+                            <p class="request-description">
+                                Malfunctioning traffic light at Kloof Street intersection. Light has been repaired and is functioning normally.
+                            </p>
+                            <div class="request-details">
+                                <span class="detail-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Kloof Street Intersection
+                                </span>
+                                <span class="detail-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    Oct 15, 2024
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="request-timeline">
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Submitted</div>
+                                        <div class="timeline-time">Oct 15, 2024 7:40 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Under Review</div>
+                                        <div class="timeline-time">Oct 15, 2024 9:00 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Resolved</div>
+                                        <div class="timeline-time">Oct 16, 2024 2:00 PM</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request 7 - Rejected -->
+        <div class="col-12" data-status="rejected" data-category="other">
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="request-ref">
+                        <i class="bi bi-hash"></i>
+                        <span class="ref-number">REQ-2024-007</span>
+                        <button class="btn btn-sm btn-copy" onclick="copyReference('REQ-2024-007')" title="Copy Reference Number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <span class="badge status-badge status-rejected">
+                        <i class="bi bi-x-circle-fill me-1"></i>Rejected
+                    </span>
+                </div>
+                <div class="request-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="request-title">
+                                <i class="bi bi-exclamation-triangle me-2 text-muted"></i>General Issue
+                            </h5>
+                            <p class="request-description">
+                                Request for private property maintenance. This falls outside municipal jurisdiction.
+                            </p>
+                            <div class="alert alert-danger mt-2 mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Rejection Reason:</strong> This request is not within municipal jurisdiction. Please contact private property management.
+                            </div>
+                            <div class="request-details">
+                                <span class="detail-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Private Complex, Table View
+                                </span>
+                                <span class="detail-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    Nov 1, 2024
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="request-timeline">
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Submitted</div>
+                                        <div class="timeline-time">Nov 1, 2024 3:25 PM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item completed">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Reviewed</div>
+                                        <div class="timeline-time">Nov 2, 2024 10:00 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item rejected">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Rejected</div>
+                                        <div class="timeline-time">Nov 2, 2024 10:15 AM</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State (Hidden by default) -->
+    <div id="emptyState" class="text-center py-5" style="display: none;">
+        <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+        <h4 class="mt-3 text-muted">No requests found</h4>
+        <p class="text-muted">Try adjusting your search or filter criteria</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/service-request.js" asp-append-version="true"></script>
+}

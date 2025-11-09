@@ -16,6 +16,16 @@ namespace CityPulse.Models
 		Other
 	}
 
+	//-----------------------------------------------------------------------
+	// Status of a service request
+	public enum ServiceRequestStatus
+	{
+		Pending,
+		InProgress,
+		Resolved,
+		Rejected
+	}
+
     //-----------------------------------------------------------------------
 	// A single issue report submitted by a citizen
 	public sealed class IssueReport
@@ -37,6 +47,10 @@ namespace CityPulse.Models
 		public DoublyLinkedList<Attachment> Attachments { get; } = new DoublyLinkedList<Attachment>(); // images or files attached
 
 		public DateTime CreatedUtc { get; set; } = DateTime.UtcNow; // time created
+
+		public ServiceRequestStatus Status { get; set; } = ServiceRequestStatus.Pending; // status of the request
+
+		public string? UserId { get; set; } // ID of user who submitted the request
 	}
 
 	// Info about files attached to reports (images, documents, etc.)

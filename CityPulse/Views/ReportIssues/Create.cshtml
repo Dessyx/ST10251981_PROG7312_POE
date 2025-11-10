@@ -100,39 +100,6 @@
     </div>
 </div>
 
-<!-- Success Modal -->
-<div id="successModal" class="modal d-none">
-    <div class="modal-content card shadow-lg p-4 p-md-5">
-        <span class="close">&times;</span>
-        <div class="text-center mb-4 position-relative">
-            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
-                <path class="checkmark-check" fill="none" d="M14 27l7 7 16-16" />
-            </svg>
-
-            <h2 class="fw-bold text-success mt-3">Issue Submitted Successfully!</h2>
-            <p class="text-muted">Your report has been logged and is now being processed.</p>
-        </div>
-
-        <div class="mb-4 d-flex flex-column flex-md-row align-items-md-center gap-2 justify-content-center position-relative">
-            <span class="fw-medium text-dark me-2">Reference Number:</span>
-            <input id="refNum" class="form-control form-control-md text-center fw-bold" style="max-width: 200px;" readonly value="">
-            <button id="copyBtn" class="btn btn-outline-success d-flex align-items-center justify-content-center position-relative" type="button" title="Copy to clipboard">
-                <img src="/images/Copy.png" alt="Copy" style="width: 20px; height: 20px;">
-                <span class="copy-check">&#10003;</span>
-            </button>
-        </div>
-
-        <p class="text-center text-muted mb-4">
-            Keep this number safe to track your request status in the future.
-        </p>
-
-        <div class="text-center">
-            <button class="btn btn-success btn-lg rounded-pill px-4 close-btn">Close</button>
-        </div>
-    </div>
-</div>
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="~/js/report-issues.js" asp-append-version="true"></script>

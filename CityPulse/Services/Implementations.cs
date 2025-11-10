@@ -72,41 +72,182 @@ namespace CityPulse.Services
 
 
     //-----------------------------------------------------------------------------
-	// Storing submitted reports
+	// Storing submitted reports 
     public sealed class IssueReportingService : IIssueReportingService
 	{
 		private readonly IReferenceNumberService _referenceNumberService;
 		private readonly IStorageService _storageService;
+
+		private readonly BinarySearchTree<IssueReport> _bstByReference;  // Fast lookup by reference number
+		private readonly AVLTree<IssueReport> _avlByDate;  // Balanced tree sorted by date
+		private readonly RedBlackTree<IssueReport> _rbTreeByStatus;  // Red-Black tree for status-based queries
+		private readonly MinHeap<IssueReport> _priorityHeap;  // Priority queue for urgent requests
+		private readonly ServiceRequestGraph _relationshipGraph;  // Graph of related requests
+		private readonly List<IssueReport> _reports = new List<IssueReport>(); // Backup list
 
 		//-----------------------------------------------------------------------
 		public IssueReportingService(IReferenceNumberService referenceNumberService, IStorageService storageService)
 		{
 			_referenceNumberService = referenceNumberService;
 			_storageService = storageService;
+			
+			// Initialize data structures
+			_bstByReference = new BinarySearchTree<IssueReport>();
+			_avlByDate = new AVLTree<IssueReport>();
+			_rbTreeByStatus = new RedBlackTree<IssueReport>();
+			_priorityHeap = new MinHeap<IssueReport>();
+			_relationshipGraph = new ServiceRequestGraph();
+		}
+
+	//-----------------------------------------------------------------------
+	public async Task<IssueReport> CreateAsync(IssueReportCreateRequest request, string userId = null)  // create new issue report
+	{
+		if (request == null) throw new ArgumentNullException(nameof(request));
+		
+		var report = new IssueReport
+		{
+			ReferenceNumber = _referenceNumberService.CreateReference(),
+			Location = request.Location,
+			Category = request.Category,
+			Description = request.Description,
+			CreatedUtc = DateTime.UtcNow,
+			Status = ServiceRequestStatus.Pending,
+			UserId = userId  
+		};
+
+		while (request.UploadQueue.TryDequeue(out var file))
+		{
+			var saved = await _storageService.SaveAsync(file);
+			report.Attachments.AddLast(saved);
+		}
+
+		
+		_reports.Add(report);
+		_bstByReference.Insert(report.ReferenceNumber, report);  
+		_avlByDate.Insert(report.CreatedUtc, report); 
+		_rbTreeByStatus.Insert($"{report.Status}_{report.ReferenceNumber}", report);  
+		
+	
+		int priority = CalculatePriority(report);
+		_priorityHeap.Insert(priority, report);
+		
+
+		_relationshipGraph.AddNode(report);
+		_relationshipGraph.BuildRelationships();  
+
+		return report;
+	}
+
+		//-----------------------------------------------------------------------
+		private int CalculatePriority(IssueReport report)
+		{
+			
+			int basePriority = report.Status switch
+			{
+				ServiceRequestStatus.Pending => 1,
+				ServiceRequestStatus.InProgress => 2,
+				ServiceRequestStatus.Resolved => 3,
+				ServiceRequestStatus.Rejected => 4,
+				_ => 5
+			};
+			
+		
+			int ageDays = (DateTime.UtcNow - report.CreatedUtc).Days;
+			return basePriority * 100 - ageDays;
 		}
 
 		//-----------------------------------------------------------------------
-		public async Task<IssueReport> CreateAsync(IssueReportCreateRequest request)  // create new issue report
+		public List<IssueReport> GetAllReports()  
 		{
-			if (request == null) throw new ArgumentNullException(nameof(request));
-			
-			
-			var report = new IssueReport
-			{
-				ReferenceNumber = _referenceNumberService.CreateReference(),  // generate reference number
-				Location = request.Location,
-				Category = request.Category,
-				Description = request.Description
-			};
+			return _avlByDate.InOrderTraversal().OrderByDescending(r => r.CreatedUtc).ToList();
+		}
 
-
-			while (request.UploadQueue.TryDequeue(out var file))
+		//-----------------------------------------------------------------------
+		public List<IssueReport> GetReportsByUserId(string userId)  
+		{
+			var allReports = _avlByDate.InOrderTraversal();
+			
+			if (string.IsNullOrEmpty(userId))
 			{
-				var saved = await _storageService.SaveAsync(file);
-				report.Attachments.AddLast(saved);
+				return allReports.OrderByDescending(r => r.CreatedUtc).ToList();
 			}
+			return allReports.Where(r => r.UserId == userId).OrderByDescending(r => r.CreatedUtc).ToList();
+		}
 
-			return report;
+		//-----------------------------------------------------------------------
+		public IssueReport SearchByReference(string referenceNumber) 
+		{
+			return _bstByReference.Search(referenceNumber);
+		}
+
+		//-----------------------------------------------------------------------
+		public List<IssueReport> GetReportsByDateRange(DateTime startDate, DateTime endDate)  
+		{
+			return _avlByDate.GetInRange(startDate, endDate);
+		}
+
+		//-----------------------------------------------------------------------
+		public List<IssueReport> GetPriorityReports()  
+		{
+			return _priorityHeap.GetAllItems();
+		}
+
+		//-----------------------------------------------------------------------
+		public List<IssueReport> GetRelatedReports(string referenceNumber)  
+		{
+			return _relationshipGraph.GetRelatedReports(referenceNumber);
+		}
+
+		//-----------------------------------------------------------------------
+		public List<IssueReport> GetReportsByLocationProximity(string referenceNumber)  
+		{
+			return _relationshipGraph.GetRelatedReports(referenceNumber, "location");
+		}
+
+		//-----------------------------------------------------------------------
+		public List<IssueReport> GetReportsByCategoryRelation(string referenceNumber) 
+		{
+			return _relationshipGraph.GetRelatedReports(referenceNumber, "category");
+		}
+
+		//-----------------------------------------------------------------------
+		public Dictionary<string, int> GetRelationshipMetrics()  
+		{
+			return _relationshipGraph.GetDegreeDistribution();
+		}
+
+		//-----------------------------------------------------------------------
+		public List<IssueReport> TraverseBreadthFirst(string startReference)  
+		{
+			return _relationshipGraph.BreadthFirstSearch(startReference);
+		}
+
+		//-----------------------------------------------------------------------
+		public List<IssueReport> TraverseDepthFirst(string startReference)  
+		{
+			return _relationshipGraph.DepthFirstSearch(startReference);
+		}
+
+		//-----------------------------------------------------------------------
+		public int GetTreeHeight()  
+		{
+			return _avlByDate.Root?.Height ?? 0;
+		}
+
+		//-----------------------------------------------------------------------
+		public Dictionary<string, object> GetDataStructureStats()  
+		{
+			return new Dictionary<string, object>
+			{
+				{ "totalReports", _reports.Count },
+				{ "bstCount", _bstByReference.Count },
+				{ "avlCount", _avlByDate.Count },
+				{ "avlHeight", _avlByDate.Root?.Height ?? 0 },
+				{ "rbTreeCount", _rbTreeByStatus.Count },
+				{ "heapCount", _priorityHeap.Count },
+				{ "graphNodes", _relationshipGraph.NodeCount },
+				{ "timestamp", DateTime.UtcNow }
+			};
 		}
 
 

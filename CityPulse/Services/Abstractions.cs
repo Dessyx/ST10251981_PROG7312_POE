@@ -19,12 +19,25 @@ namespace CityPulse.Services.Abstractions
 	}
 
 	// ----------------------------------------------------------------------------
-	// Issue reporting service interface
+	// Issue reporting service interface with Data Structures
 	public interface IIssueReportingService
 	{
-		Task<IssueReport> CreateAsync(IssueReportCreateRequest request);  
+		Task<IssueReport> CreateAsync(IssueReportCreateRequest request, string userId = null);  
 
-		CityPulse.Models.Queue<string> GetLocationSuggestions(string query);  
+		CityPulse.Models.Queue<string> GetLocationSuggestions(string query);
+		List<IssueReport> GetAllReports();
+		List<IssueReport> GetReportsByUserId(string userId);
+		IssueReport SearchByReference(string referenceNumber); 
+		List<IssueReport> GetReportsByDateRange(DateTime startDate, DateTime endDate);
+		int GetTreeHeight();
+		List<IssueReport> GetPriorityReports();
+		List<IssueReport> GetRelatedReports(string referenceNumber);
+		List<IssueReport> GetReportsByLocationProximity(string referenceNumber);
+		List<IssueReport> GetReportsByCategoryRelation(string referenceNumber);
+		Dictionary<string, int> GetRelationshipMetrics();
+		List<IssueReport> TraverseBreadthFirst(string startReference);
+		List<IssueReport> TraverseDepthFirst(string startReference);
+		Dictionary<string, object> GetDataStructureStats();
 	}
 
 	// ----------------------------------------------------------------------------

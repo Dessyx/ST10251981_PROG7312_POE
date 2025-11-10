@@ -173,59 +173,7 @@ locationInput.addEventListener('input', async function(){
     });
 });
 
-document.getElementById('reportForm').addEventListener('submit', function(e){
-    e.preventDefault();
 
-    const newReport = {
-        ref: 'RPT-'+(reports.length+1).toString().padStart(3,'0'),
-        lat: marker ? marker.getLatLng().lat : -30.5595,
-        lon: marker ? marker.getLatLng().lng : 22.9375,
-        location: locationInput.value,
-        status: 'reported',
-        confirmations: {still:0,fixed:0}
-    };
-    reports.push(newReport);
-    addReportPin(newReport);
-    renderWardStats();
-    renderVerificationList();
-
-    document.getElementById('refNum').value = newReport.ref;
-
-    const modal = document.getElementById('successModal');
-    modal.classList.remove('d-none');
-    document.body.style.overflow = 'hidden';
-});
-
-const modal = document.getElementById('successModal');
-modal.querySelector('.close').addEventListener('click', closeModal);
-modal.querySelector('.close-btn').addEventListener('click', closeModal);
-
-function closeModal(){
-    modal.classList.add('d-none');
-    document.body.style.overflow = 'auto';
-
-    locationInput.value='';
-    document.getElementById('category').value='';
-    document.getElementById('description').value='';
-    if(marker) map.removeLayer(marker);
-    marker = null;
-    currentStep = 0;
-    showStep(currentStep);
-    updateCompletionProgress();
-}
-
-(function() {
-    const btn = document.getElementById('copyBtn');
-    const input = document.getElementById('refNum');
-    if (!btn || !input) return;
-
-    btn.addEventListener('click', async function() {
-        try { await navigator.clipboard.writeText(input.value); }
-        catch (e) { input.select(); document.execCommand('copy'); }
-        btn.classList.add('copied');
-        setTimeout(()=>btn.classList.remove('copied'), 1200);
-    });
-})();
 
 reports.forEach(addReportPin);
 renderWardStats();

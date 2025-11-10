@@ -1,4 +1,4 @@
-
+let allReports = []; // Store all reports globally
 
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
@@ -7,42 +7,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const requestsContainer = document.getElementById('requestsContainer');
     const emptyState = document.getElementById('emptyState');
 
+    // Load reports from API and data structure stats
+    loadReports();
+    loadDataStructureStats();
+
     // Filter functionality
     function filterRequests() {
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        const selectedStatus = statusFilter.value;
-        const selectedCategory = categoryFilter.value;
+        renderReports(allReports);
+    }
 
-        const requests = requestsContainer.querySelectorAll('[data-status]');
-        let visibleCount = 0;
+    async function loadDataStructureStats() {
+        try {
+            const response = await fetch('/ReportIssues/GetDataStructureStats');
+            const stats = await response.json();
+            displayDataStructureInfo(stats);
+        } catch (error) {
+            console.error('Error loading data structure stats:', error);
+        }
+    }
 
-        requests.forEach(request => {
-            const status = request.getAttribute('data-status');
-            const category = request.getAttribute('data-category');
-            const refNumber = request.querySelector('.ref-number').textContent.toLowerCase();
-            const description = request.querySelector('.request-description').textContent.toLowerCase();
-
-            // filtering
-            const matchesSearch = searchTerm === '' || 
-                                refNumber.includes(searchTerm) || 
-                                description.includes(searchTerm);
-            const matchesStatus = selectedStatus === 'all' || status === selectedStatus;
-            const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
-
-            if (matchesSearch && matchesStatus && matchesCategory) {
-                request.style.display = 'block';
-                visibleCount++;
-            } else {
-                request.style.display = 'none';
-            }
-        });
-
-        if (visibleCount === 0) {
-            requestsContainer.style.display = 'none';
-            emptyState.style.display = 'block';
-        } else {
-            requestsContainer.style.display = 'block';
-            emptyState.style.display = 'none';
+    function displayDataStructureInfo(stats) {
+        const infoText = document.getElementById('dsInfoText');
+        if (infoText && stats) {
+            infoText.innerHTML = `
+                BST (${stats.bstCount} nodes) | 
+                AVL Tree (${stats.avlCount} nodes, height: ${stats.avlHeight}) | 
+                RB Tree (${stats.rbTreeCount} nodes) | 
+                Min-Heap (${stats.heapCount} items) | 
+                Graph (${stats.graphNodes} nodes)
+            `;
         }
     }
 
@@ -56,6 +49,229 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (categoryFilter) {
         categoryFilter.addEventListener('change', filterRequests);
+    }
+
+    async function loadReports() {
+        try {
+            const response = await fetch('/ReportIssues/GetReports');
+            const reports = await response.json();
+            allReports = reports;
+            renderReports(reports);
+            updateStatistics(reports);
+        } catch (error) {
+            console.error('Error loading reports:', error);
+            showToast('Failed to load reports', 'error');
+        }
+    }
+
+    function renderReports(reports) {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedStatus = statusFilter.value;
+        const selectedCategory = categoryFilter.value;
+
+        // Filter reports
+        const filteredReports = reports.filter(report => {
+            const matchesSearch = searchTerm === '' || 
+                                report.referenceNumber.toLowerCase().includes(searchTerm) || 
+                                report.description.toLowerCase().includes(searchTerm);
+            const matchesStatus = selectedStatus === 'all' || report.status.toLowerCase() === selectedStatus;
+            const matchesCategory = selectedCategory === 'all' || report.category.toLowerCase() === selectedCategory;
+            return matchesSearch && matchesStatus && matchesCategory;
+        });
+
+        requestsContainer.innerHTML = '';
+
+        if (filteredReports.length === 0) {
+            requestsContainer.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        requestsContainer.style.display = 'block';
+        emptyState.style.display = 'none';
+
+        filteredReports.forEach(report => {
+            const reportCard = createReportCard(report);
+            requestsContainer.appendChild(reportCard);
+        });
+    }
+
+    function createReportCard(report) {
+        const col = document.createElement('div');
+        col.className = 'col-12';
+        col.setAttribute('data-status', report.status.toLowerCase());
+        col.setAttribute('data-category', report.category.toLowerCase());
+
+        const statusMap = {
+            'Pending': 'pending',
+            'InProgress': 'inprogress',
+            'Resolved': 'resolved',
+            'Rejected': 'rejected'
+        };
+
+        const iconMap = {
+            'Sanitation': 'trash',
+            'Roads': 'cone-striped',
+            'Utilities': 'tools',
+            'Water': 'droplet-fill',
+            'Electricity': 'lightning-charge-fill',
+            'Other': 'exclamation-triangle'
+        };
+
+        const statusClass = statusMap[report.status] || 'pending';
+        const icon = iconMap[report.category] || 'exclamation-triangle';
+        const date = new Date(report.createdUtc).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        col.innerHTML = `
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="request-ref">
+                        <i class="bi bi-hash"></i>
+                        <span class="ref-number">${report.referenceNumber}</span>
+                        <button class="btn btn-sm btn-copy" onclick="copyReference('${report.referenceNumber}')" title="Copy Reference Number">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <span class="badge status-badge status-${statusClass}">
+                        <i class="bi bi-${getStatusIcon(report.status)} me-1"></i>${formatStatus(report.status)}
+                    </span>
+                </div>
+                <div class="request-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="request-title">
+                                <i class="bi bi-${icon} me-2 text-muted"></i>${report.category}
+                            </h5>
+                            <p class="request-description">
+                                ${report.description || 'No description provided.'}
+                            </p>
+                            <div class="request-details">
+                                <span class="detail-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    ${report.location}
+                                </span>
+                                <span class="detail-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    ${date}
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="showRelatedReports('${report.referenceNumber}')" title="Find Related Reports (Graph)">
+                                    <i class="bi bi-diagram-3"></i> Related
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary me-1" onclick="showLocationProximity('${report.referenceNumber}')" title="Same Location (Graph)">
+                                    <i class="bi bi-geo-alt"></i> Location
+                                </button>
+                                <button class="btn btn-sm btn-outline-info" onclick="showCategoryRelation('${report.referenceNumber}')" title="Same Category (Graph)">
+                                    <i class="bi bi-tag"></i> Category
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="request-timeline">
+                                ${createTimeline(report.status, date)}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="related-${report.referenceNumber}" class="mt-3" style="display: none;">
+                        <!-- Related reports will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        `;
+
+        return col;
+    }
+
+    function getStatusIcon(status) {
+        const icons = {
+            'Pending': 'hourglass-split',
+            'InProgress': 'gear-fill',
+            'Resolved': 'check-circle-fill',
+            'Rejected': 'x-circle-fill'
+        };
+        return icons[status] || 'hourglass-split';
+    }
+
+    function formatStatus(status) {
+        const formatted = {
+            'Pending': 'Pending',
+            'InProgress': 'In Progress',
+            'Resolved': 'Resolved',
+            'Rejected': 'Rejected'
+        };
+        return formatted[status] || status;
+    }
+
+    function createTimeline(status, date) {
+        const isResolved = status === 'Resolved';
+        const isInProgress = status === 'InProgress';
+        const isRejected = status === 'Rejected';
+
+        let timeline = `
+            <div class="timeline-item ${isResolved || isInProgress || isRejected ? 'completed' : 'active'}">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Submitted</div>
+                    <div class="timeline-time">${date}</div>
+                </div>
+            </div>
+        `;
+
+        if (!isRejected) {
+            timeline += `
+                <div class="timeline-item ${isResolved ? 'completed' : (isInProgress ? 'active' : '')}">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Under Review</div>
+                        <div class="timeline-time">${isInProgress || isResolved ? date : 'Pending'}</div>
+                    </div>
+                </div>
+                <div class="timeline-item ${isResolved ? 'completed' : ''}">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Resolved</div>
+                        <div class="timeline-time">${isResolved ? date : 'Pending'}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            timeline += `
+                <div class="timeline-item completed">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Reviewed</div>
+                        <div class="timeline-time">${date}</div>
+                    </div>
+                </div>
+                <div class="timeline-item rejected">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Rejected</div>
+                        <div class="timeline-time">${date}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        return timeline;
+    }
+
+    function updateStatistics(reports) {
+        const stats = {
+            pending: reports.filter(r => r.status === 'Pending').length,
+            inprogress: reports.filter(r => r.status === 'InProgress').length,
+            resolved: reports.filter(r => r.status === 'Resolved').length,
+            rejected: reports.filter(r => r.status === 'Rejected').length
+        };
+
+        const statNumbers = document.querySelectorAll('.stat-number');
+        if (statNumbers.length >= 4) {
+            statNumbers[0].textContent = stats.pending;
+            statNumbers[1].textContent = stats.inprogress;
+            statNumbers[2].textContent = stats.resolved;
+            statNumbers[3].textContent = stats.rejected;
+        }
     }
 });
 
@@ -148,4 +364,110 @@ function showToast(message, type = 'success') {
 }
 
 window.copyReference = copyReference;
+
+// Graph-based related reports functions
+window.showRelatedReports = async function(refNumber) {
+    const container = document.getElementById(`related-${refNumber}`);
+    if (container.style.display === 'block') {
+        container.style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/ReportIssues/GetRelatedReports?refNumber=${refNumber}`);
+        const reports = await response.json();
+        
+        if (reports.length === 0) {
+            container.innerHTML = '<div class="alert alert-warning">No related reports found.</div>';
+        } else {
+            container.innerHTML = `
+                <div class="alert alert-success">
+                    <strong><i class="bi bi-diagram-3"></i> Related Reports (Graph Relationships):</strong>
+                    <ul class="list-unstyled mt-2 mb-0">
+                        ${reports.map(r => `
+                            <li class="mb-1">
+                                <i class="bi bi-arrow-right-circle"></i>
+                                <strong>${r.referenceNumber}</strong> - ${r.location} (${r.category})
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        container.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading related reports:', error);
+        showToast('Failed to load related reports', 'error');
+    }
+};
+
+window.showLocationProximity = async function(refNumber) {
+    const container = document.getElementById(`related-${refNumber}`);
+    if (container.style.display === 'block') {
+        container.style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/ReportIssues/GetReportsByLocation?refNumber=${refNumber}`);
+        const reports = await response.json();
+        
+        if (reports.length === 0) {
+            container.innerHTML = '<div class="alert alert-warning">No reports found in the same location.</div>';
+        } else {
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <strong><i class="bi bi-geo-alt"></i> Same Location Reports (Graph - Location Edges):</strong>
+                    <ul class="list-unstyled mt-2 mb-0">
+                        ${reports.map(r => `
+                            <li class="mb-1">
+                                <i class="bi bi-geo"></i>
+                                <strong>${r.referenceNumber}</strong> - ${r.category} - ${r.status}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        container.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading location proximity:', error);
+        showToast('Failed to load location reports', 'error');
+    }
+};
+
+window.showCategoryRelation = async function(refNumber) {
+    const container = document.getElementById(`related-${refNumber}`);
+    if (container.style.display === 'block') {
+        container.style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/ReportIssues/GetReportsByCategory?refNumber=${refNumber}`);
+        const reports = await response.json();
+        
+        if (reports.length === 0) {
+            container.innerHTML = '<div class="alert alert-warning">No reports found in the same category.</div>';
+        } else {
+            container.innerHTML = `
+                <div class="alert alert-primary">
+                    <strong><i class="bi bi-tag"></i> Same Category Reports (Graph - Category Edges):</strong>
+                    <ul class="list-unstyled mt-2 mb-0">
+                        ${reports.map(r => `
+                            <li class="mb-1">
+                                <i class="bi bi-tag-fill"></i>
+                                <strong>${r.referenceNumber}</strong> - ${r.location} - ${r.status}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        container.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading category relations:', error);
+        showToast('Failed to load category reports', 'error');
+    }
+};
 

@@ -6,7 +6,7 @@ builder.Services.AddControllersWithViews();
 // Domain services registration
 builder.Services.AddSingleton<CityPulse.Services.Abstractions.IReferenceNumberService, CityPulse.Services.ReferenceNumberService>();
 builder.Services.AddSingleton<CityPulse.Services.Abstractions.IStorageService, CityPulse.Services.LocalStorageService>();
-builder.Services.AddScoped<CityPulse.Services.Abstractions.IIssueReportingService, CityPulse.Services.IssueReportingService>();
+builder.Services.AddSingleton<CityPulse.Services.Abstractions.IIssueReportingService, CityPulse.Services.IssueReportingService>();  
 builder.Services.AddSingleton<CityPulse.Services.Abstractions.IAnnouncementService, CityPulse.Services.AnnouncementService>();
 builder.Services.AddSingleton<CityPulse.Services.Abstractions.IAdminAuthenticationService, CityPulse.Services.AdminAuthenticationService>();
 builder.Services.AddSingleton<CityPulse.Services.Abstractions.IRecommendationService, CityPulse.Services.RecommendationService>();

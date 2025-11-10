@@ -38,6 +38,9 @@ namespace CityPulse.Services.Abstractions
 		List<IssueReport> TraverseBreadthFirst(string startReference);
 		List<IssueReport> TraverseDepthFirst(string startReference);
 		Dictionary<string, object> GetDataStructureStats();
+		
+		bool UpdateReportStatus(string referenceNumber, ServiceRequestStatus newStatus);
+		Dictionary<ServiceRequestStatus, int> GetStatusStatistics();
 	}
 
 	// ----------------------------------------------------------------------------

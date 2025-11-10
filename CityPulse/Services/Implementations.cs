@@ -234,21 +234,56 @@ namespace CityPulse.Services
 			return _avlByDate.Root?.Height ?? 0;
 		}
 
-		//-----------------------------------------------------------------------
-		public Dictionary<string, object> GetDataStructureStats()  
+	//-----------------------------------------------------------------------
+	public Dictionary<string, object> GetDataStructureStats()  
+	{
+		return new Dictionary<string, object>
 		{
-			return new Dictionary<string, object>
-			{
-				{ "totalReports", _reports.Count },
-				{ "bstCount", _bstByReference.Count },
-				{ "avlCount", _avlByDate.Count },
-				{ "avlHeight", _avlByDate.Root?.Height ?? 0 },
-				{ "rbTreeCount", _rbTreeByStatus.Count },
-				{ "heapCount", _priorityHeap.Count },
-				{ "graphNodes", _relationshipGraph.NodeCount },
-				{ "timestamp", DateTime.UtcNow }
-			};
+			{ "totalReports", _reports.Count },
+			{ "bstCount", _bstByReference.Count },
+			{ "avlCount", _avlByDate.Count },
+			{ "avlHeight", _avlByDate.Root?.Height ?? 0 },
+			{ "rbTreeCount", _rbTreeByStatus.Count },
+			{ "heapCount", _priorityHeap.Count },
+			{ "graphNodes", _relationshipGraph.NodeCount },
+			{ "timestamp", DateTime.UtcNow }
+		};
+	}
+
+	//-----------------------------------------------------------------------
+	public bool UpdateReportStatus(string referenceNumber, ServiceRequestStatus newStatus)
+	{
+		
+		var report = _bstByReference.Search(referenceNumber);
+		
+		if (report == null)
+			return false;
+
+
+		var oldStatus = report.Status;
+		report.Status = newStatus;
+
+	
+		_rbTreeByStatus.Insert($"{newStatus}_{referenceNumber}", report);
+
+		int newPriority = CalculatePriority(report);
+		_priorityHeap.Insert(newPriority, report);
+
+		return true;
+	}
+
+	//-----------------------------------------------------------------------
+	public Dictionary<ServiceRequestStatus, int> GetStatusStatistics()
+	{
+		var stats = new Dictionary<ServiceRequestStatus, int>();
+		
+		foreach (ServiceRequestStatus status in Enum.GetValues(typeof(ServiceRequestStatus)))
+		{
+			stats[status] = _reports.Count(r => r.Status == status);
 		}
+		
+		return stats;
+	}
 
 
         //-----------------------------------------------------------------------

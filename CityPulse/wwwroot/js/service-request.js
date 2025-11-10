@@ -7,36 +7,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const requestsContainer = document.getElementById('requestsContainer');
     const emptyState = document.getElementById('emptyState');
 
-    // Load reports from API and data structure stats
+  
     loadReports();
-    loadDataStructureStats();
 
     // Filter functionality
     function filterRequests() {
         renderReports(allReports);
-    }
-
-    async function loadDataStructureStats() {
-        try {
-            const response = await fetch('/ReportIssues/GetDataStructureStats');
-            const stats = await response.json();
-            displayDataStructureInfo(stats);
-        } catch (error) {
-            console.error('Error loading data structure stats:', error);
-        }
-    }
-
-    function displayDataStructureInfo(stats) {
-        const infoText = document.getElementById('dsInfoText');
-        if (infoText && stats) {
-            infoText.innerHTML = `
-                BST (${stats.bstCount} nodes) | 
-                AVL Tree (${stats.avlCount} nodes, height: ${stats.avlHeight}) | 
-                RB Tree (${stats.rbTreeCount} nodes) | 
-                Min-Heap (${stats.heapCount} items) | 
-                Graph (${stats.graphNodes} nodes)
-            `;
-        }
     }
 
     if (searchInput) {

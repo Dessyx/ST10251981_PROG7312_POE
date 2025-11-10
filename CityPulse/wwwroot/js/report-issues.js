@@ -28,73 +28,9 @@ function addReportPin(report){
     pin.bindPopup(`
         <b>${report.location}</b><br/>
         Ref: ${report.ref}<br/>
-        Status: ${report.status}<br/>
-        <button onclick="confirmReport('${report.ref}','still')">Still a Problem ?</button>
-        <button onclick="confirmReport('${report.ref}','fixed')">Resolved ?</button>
+        Status: ${report.status}
     `);
     report.pin = pin;
-}
-
-function confirmReport(ref, type){
-    const report = reports.find(r=>r.ref===ref);
-    if(!report) return;
-
-    report.confirmations[type]++;
-    if(report.confirmations.fixed>=3) report.status='resolved';
-    else if(report.confirmations.still>report.confirmations.fixed) report.status='needs-verification';
-    else report.status='reported';
-
-    report.pin.setStyle({color:statusColors[report.status], fillColor:statusColors[report.status]});
-    renderWardStats();
-    renderVerificationList();
-    report.pin.closePopup();
-
-    updateCompletionProgress();
-}
-
-function renderWardStats(){
-    const wardList = document.getElementById('wardList');
-    wardList.innerHTML='';
-    const wardMap={};
-    reports.forEach(r=>{
-        const ward=r.location.split(' ')[0];
-        if(!wardMap[ward]) wardMap[ward]={total:0,resolved:0,active:0};
-        wardMap[ward].total++;
-        if(r.status==='resolved') wardMap[ward].resolved++;
-        else wardMap[ward].active++;
-    });
-    for(const ward in wardMap){
-        const stats=wardMap[ward];
-        const li=document.createElement('li');
-        li.className='list-group-item';
-        li.innerHTML=`
-            ${ward} ? ${stats.total} reports, ${stats.resolved} resolved, ${stats.active} still active
-            <div class="progress mt-1">
-                <div class="progress-bar" role="progressbar" style="width:${(stats.resolved/stats.total)*100}%">${Math.round((stats.resolved/stats.total)*100)}%</div>
-            </div>
-        `;
-        wardList.appendChild(li);
-    }
-}
-
-function renderVerificationList(){
-    const verifyList = document.getElementById('verifyList');
-    verifyList.innerHTML='';
-    reports.forEach(r=>{
-        const li=document.createElement('li');
-        li.className='list-group-item d-flex justify-content-between align-items-center';
-        li.innerHTML=`
-            <div>
-                <strong>${r.location}</strong><br/>
-                <small>Status: ${r.status}</small>
-            </div>
-            <div>
-                <button class="btn btn-sm btn-outline-primary me-1" onclick="confirmReport('${r.ref}','still')">Still a Problem ?</button>
-                <button class="btn btn-sm btn-outline-success" onclick="confirmReport('${r.ref}','fixed')">Resolved ?</button>
-            </div>
-        `;
-        verifyList.appendChild(li);
-    });
 }
 
 let currentStep = 0;
@@ -176,7 +112,5 @@ locationInput.addEventListener('input', async function(){
 
 
 reports.forEach(addReportPin);
-renderWardStats();
-renderVerificationList();
 showStep(currentStep);
 

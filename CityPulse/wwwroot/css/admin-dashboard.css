@@ -2,8 +2,15 @@
 /* Admin Panel Layout */
 .admin-wrapper {
     display: flex;
-    min-height: calc(100vh - 100px);
+    min-height: 100vh;
     gap: 0;
+    margin: 0;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
 }
 
 /* Sidebar Navigation */
@@ -70,8 +77,9 @@
 /* Main Content Area */
 .admin-content {
     flex: 1;
-    padding: 2rem;
+    padding: 0 2rem 2rem 2rem;
     background: #f8f9fa;
+    overflow-x: hidden;
 }
 
 .content-section {

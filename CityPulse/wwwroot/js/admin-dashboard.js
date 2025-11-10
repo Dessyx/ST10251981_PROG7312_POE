@@ -126,8 +126,8 @@ function renderDashboardTable(reports) {
                 <td>${date}</td>
                 <td><span class="badge bg-${statusColor}">${formatStatusText(report.status)}</span></td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary me-1" style="border-radius: 10px;" onclick="openReviewModal('${report.referenceNumber}')" title="Review Details">
-                        <i class="bi bi-eye"></i> Review
+                    <button class="btn btn-sm me-1 rounded-circle" style="border: 1px solid #0dcaf0; color: #0dcaf0; width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" onclick="openReviewModal('${report.referenceNumber}')" title="Review Details">
+                        <i class="bi bi-eye"></i>
                     </button>
                     ${report.status === 'Pending' ? `
                         <button class="btn btn-sm btn-success" style="border-radius: 10px;" onclick="quickUpdate('${report.referenceNumber}', 'InProgress')">

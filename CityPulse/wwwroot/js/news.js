@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Starting auto-track...');
             autoTrackFilterPreferences(searchTerm, selectedCategory, matchedAnnouncements);
         } else {
-            console.log('❌ No announcements to track!');
+            console.log(' No announcements to track!');
         }
     }
 
@@ -412,14 +412,14 @@ function addToPreferences(button, announcementId, category) {
             
            
             if (data.isLoggedIn) {
-                showToast(`${category} added to your interests! 💝 (Saved to your account)`, 'success');
+                showToast(`${category} added to your interests!  (Saved to your account)`, 'success');
                 
                
                 setTimeout(() => {
                     refreshRecommendations();
                 }, 1000);
             } else {
-                showToast(`${category} tracked! Login to save permanently. 💝`, 'info');
+                showToast(`${category} tracked! Login to save permanently. `, 'info');
             }
             
            
@@ -442,21 +442,21 @@ function addToPreferences(button, announcementId, category) {
 
 
 function refreshRecommendations() {
-    console.log('🔄 Refreshing recommendations...');
+    console.log(' Refreshing recommendations...');
     
     fetch('/News/GetRecommendations?count=6')
         .then(response => response.json())
         .then(data => {
-            console.log('📊 User Preferences:', data.preferences);
-            console.log('👤 User ID:', data.userId);
-            console.log('📋 Recommendations:', data.recommendations);
+            console.log(' User Preferences:', data.preferences);
+            console.log(' User ID:', data.userId);
+            console.log(' Recommendations:', data.recommendations);
             
             if (data.recommendations && data.recommendations.length > 0) {
-                console.log('✅ Got', data.recommendations.length, 'recommendations');
+                console.log('Got', data.recommendations.length, 'recommendations');
                 
            
                 if (data.preferences && Object.keys(data.preferences).length > 0) {
-                    console.log('📈 Your top interests:');
+                    console.log(' Your top interests:');
                     Object.entries(data.preferences)
                         .sort((a, b) => b[1] - a[1])
                         .forEach(([category, count]) => {
@@ -506,7 +506,7 @@ function refreshRecommendations() {
                         }, 2500);
                     }
                     
-                    console.log('✅ RECOMMENDATIONS UPDATED! Scroll up to see them.');
+                    console.log(' RECOMMENDATIONS UPDATED! Scroll up to see them.');
                 } else {
                     console.log('⚠️ Recommendations container not found on page');
                 }
@@ -515,7 +515,7 @@ function refreshRecommendations() {
             }
         })
         .catch(error => {
-            console.error('❌ Error refreshing recommendations:', error);
+            console.error(' Error refreshing recommendations:', error);
         });
 }
 
@@ -570,17 +570,17 @@ function truncateText(text, maxLength) {
 function autoTrackFilterPreferences(searchTerm, selectedCategory, matchedAnnouncements) {
     const isLoggedIn = document.querySelector('[id="userDropdown"]') !== null;
     if (!isLoggedIn) {
-        console.log('⚠️ Not logged in - skipping auto-track');
+        console.log(' Not logged in - skipping auto-track');
         return;
     }
     
     const itemsToTrack = matchedAnnouncements.slice(0, 6);
     if (itemsToTrack.length === 0) {
-        console.log('⚠️ No items to track');
+        console.log(' No items to track');
         return;
     }
     
-    console.log(`🎯 AUTO-TRACKING ${itemsToTrack.length} items...`);
+    console.log(` AUTO-TRACKING ${itemsToTrack.length} items...`);
     if (searchTerm) console.log(`   🔍 Search: "${searchTerm}"`);
     if (selectedCategory !== 'all') console.log(`   📂 Category: ${selectedCategory}`);
     
@@ -599,11 +599,11 @@ function autoTrackFilterPreferences(searchTerm, selectedCategory, matchedAnnounc
             .then(data => {
                 if (data.success) {
                     trackedCount++;
-                    console.log(`   ✅ Tracked ${trackedCount}/${totalItems}: ${item.category}`);
+                    console.log(`    Tracked ${trackedCount}/${totalItems}: ${item.category}`);
                     
                    
                     if (trackedCount === totalItems) {
-                        console.log(`🔄 All ${totalItems} items tracked! Refreshing recommendations...`);
+                        console.log(` All ${totalItems} items tracked! Refreshing recommendations...`);
                         setTimeout(() => {
                             refreshRecommendations();
                         }, 300);
@@ -611,7 +611,7 @@ function autoTrackFilterPreferences(searchTerm, selectedCategory, matchedAnnounc
                 }
             })
             .catch(error => {
-                console.error(`❌ Track error:`, error);
+                console.error(` Track error:`, error);
             });
         }, index * 150);
     });

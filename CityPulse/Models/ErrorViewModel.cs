@@ -7,3 +7,5 @@ namespace CityPulse.Models
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }
+
+//---------------------------------------------------------- <<< End of File >>>--------------------------------

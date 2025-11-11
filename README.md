@@ -475,7 +475,7 @@ Each data structure is chosen specifically for its strengths, creating a robust 
 ---
 ## 🏆 Lecturer feedback
 
-The lecturer was a huge aid in the sucess of my project. He had given thughtful advice and had our best intrest in heart.
+The lecturer was a huge aid in the success of my project. He had given thughtful advice and had our best intrest in heart.
  
 ### Formative 1 - Part 1
 For part 1 I was ammended for my great work.

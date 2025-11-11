@@ -334,18 +334,18 @@ async function updateStatus(referenceNumber) {
             showToast('Status updated successfully!', 'success');
             selectElement.setAttribute('data-current', newStatus);
             
-            // Refresh the list after a short delay
+     
             setTimeout(() => {
                 loadServiceRequests(true);
             }, 500);
         } else {
             showToast(result.message || 'Failed to update status', 'error');
-            selectElement.value = currentStatus; // Revert selection
+            selectElement.value = currentStatus; 
         }
     } catch (error) {
         console.error('Error updating status:', error);
         showToast('Error updating status', 'error');
-        selectElement.value = currentStatus; // Revert selection
+        selectElement.value = currentStatus; 
     } finally {
         button.disabled = false;
         button.innerHTML = originalHtml;
@@ -437,7 +437,7 @@ function showError(message) {
     showToast(message, 'error');
 }
 
-// Bulk action placeholder (for future implementation)
+
 window.bulkAction = function(action) {
     showToast('Bulk actions coming soon!', 'info');
 };

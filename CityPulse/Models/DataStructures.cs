@@ -235,7 +235,7 @@ namespace CityPulse.Models
 	}
 
     // ----------------------------------------------------------------------------
-	// NinHeap
+	// MinHeap
     public class MinHeap<T> where T : class
 	{
 		private List<(int priority, T item)> _heap;

@@ -27,9 +27,6 @@ This project is a web application built with ASP.NET Core MVC, C#, JavaScript, a
 - Error/Critical: Red
 - Featured Items: Red border with gradient background
 ---
- 
-
----
 
 ## 👩‍💻 GETTING STARTED  
 
@@ -476,6 +473,17 @@ The power of the Service Request Status feature comes from these data structures
 Each data structure is chosen specifically for its strengths, creating a robust and highly efficient service request tracking system that scales gracefully as the number of requests grows.
 
 ---
+## 🏆 Lecturer feedback
+
+The lecturer was a huge aid in the sucess of my project. He had given thughtful advice and had our best intrest in heart.
+ 
+### Formative 1 - Part 1
+For part 1 I was ammended for my great work.
+![Formative 1 Feedback](CityPulse/Screenshots/P1.png)
+
+### Formative 2 - Part 2
+And for Part 2 I was advised to work closely with the rubric for this current part. 
+![Formative 2 Feedback](CityPulse/Screenshots/P2.png)
 
 
 ## 📺 YOUTUBE LINK: https://youtu.be/G_S5Ybnx8RE 

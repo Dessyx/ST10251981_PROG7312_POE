@@ -202,7 +202,7 @@ window.quickUpdate = async function(referenceNumber, newStatus) {
         const result = await response.json();
 
         if (result.success) {
-            showDashToast('Status updated successfully!', 'success');
+            showDashToast('Status updated!', 'success');
             setTimeout(() => {
                 loadDashboardRequests();
             }, 500);
@@ -306,7 +306,7 @@ window.markAsResolved = async function() {
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
             
-            showDashToast('Report marked as resolved successfully!', 'success');
+            showDashToast('Report marked as resolved!', 'success');
             
             setTimeout(() => {
                 loadDashboardRequests();
@@ -321,20 +321,42 @@ window.markAsResolved = async function() {
 };
 
 function showDashToast(message, type = 'success') {
+    const existingToast = document.querySelector('.dash-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
     
     const toast = document.createElement('div');
-    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
-    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.className = 'dash-toast';
+    const iconColor = type === 'success' ? '#28a745' : '#dc3545';
     toast.innerHTML = `
-        <i class="bi bi-${type === 'success' ? 'check-circle' : 'x-circle'} me-2"></i>
+        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'x-circle-fill'} me-2" style="color: ${iconColor};"></i>
         ${message}
+    `;
+    
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        color: #333;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        z-index: 9999;
+        animation: slideInRight 0.3s ease;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        min-width: 300px;
     `;
     
     document.body.appendChild(toast);
     
     setTimeout(() => {
-        toast.style.transition = 'opacity 0.3s';
+        toast.style.transition = 'opacity 0.3s, transform 0.3s';
         toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }

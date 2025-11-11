@@ -34,9 +34,29 @@ document.addEventListener('DOMContentLoaded', function() {
             allReports = reports;
             renderReports(reports);
             updateStatistics(reports);
+            checkForResolvedReports(reports);
         } catch (error) {
             console.error('Error loading reports:', error);
             showToast('Failed to load reports', 'error');
+        }
+    }
+
+    function checkForResolvedReports(reports) {
+        const resolvedReports = reports.filter(r => r.status === 'Resolved');
+        
+        if (resolvedReports.length > 0) {
+            const notice = document.getElementById('resolvedNotice');
+            const noticeText = document.getElementById('resolvedNoticeText');
+            
+            if (resolvedReports.length === 1) {
+                noticeText.innerHTML = `Your service request <strong>${resolvedReports[0].referenceNumber}</strong> has been resolved! Thank you for your patience.`;
+            } else {
+                const refNumbers = resolvedReports.slice(0, 3).map(r => `<strong>${r.referenceNumber}</strong>`).join(', ');
+                const extraCount = resolvedReports.length > 3 ? ` and ${resolvedReports.length - 3} more` : '';
+                noticeText.innerHTML = `${resolvedReports.length} of your service requests have been resolved: ${refNumbers}${extraCount}. Thank you for your patience!`;
+            }
+            
+            notice.style.display = 'block';
         }
     }
 
@@ -283,8 +303,9 @@ function showToast(message, type = 'success') {
 
     const toast = document.createElement('div');
     toast.className = `custom-toast toast-${type}`;
+    const iconColor = type === 'success' ? '#28a745' : '#dc3545';
     toast.innerHTML = `
-        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'x-circle-fill'} me-2"></i>
+        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'x-circle-fill'} me-2" style="color: ${iconColor};"></i>
         ${message}
     `;
 
@@ -292,11 +313,11 @@ function showToast(message, type = 'success') {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: ${type === 'success' ? '#28a745' : '#dc3545'};
-        color: white;
+        background: white;
+        color: #333;
         padding: 1rem 1.5rem;
         border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         z-index: 9999;
         animation: slideInRight 0.3s ease;
         display: flex;

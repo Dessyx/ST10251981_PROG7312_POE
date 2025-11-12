@@ -52,14 +52,15 @@ ASP.NET Core MVC, C#, JavaScript, Leaflet.js, Bootstrap 5, HTML5, CSS3
 2. Select location from search suggestions or map
 3. Upload images/documents with reports
 4. Track report progress in real-time
-5. Verify reports as "Still a Problem" or "Resolved"
-6. View ward-level statistics and interactive map pins
-7. Create accounts and login for personalized recommendations
-8. Search for announcements/news using keywords from titles or descriptions
-9. Filter announcements by category and date range
-10. View personalized recommendations based on their interests
-11. Add announcements to their interests for better recommendations
-12. Admins can login and create announcements
+5. View ward-level statistics and interactive map pins
+6. Create accounts and login for personalized recommendations
+7. Search for announcements/news using keywords from titles or descriptions
+8. Filter announcements by category and date range
+9. View personalized recommendations based on their interests
+10. Add announcements to their interests for better recommendations
+11. Admins can login and create announcements
+12. Admins can verify and reject issues
+13. Admins can also provide in-depth status info with reports
 
 
 ### Admin log in details

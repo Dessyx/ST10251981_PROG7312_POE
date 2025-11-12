@@ -106,42 +106,52 @@
     </div>
 
     <!-- Recommendations Section -->
-    @if (ViewBag.Recommendations != null && ((List<CityPulse.Models.Announcement>)ViewBag.Recommendations).Any())
-    {
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card border-dark shadow-sm" id="recommendationsCard" style="border-width: 2px; border-radius: 15px; background: #ffffff;">
-                    <div class="card-body">
-                        <h5 class="card-title text-dark fw-bold mb-3">
-                            <i class="bi bi-stars me-2"></i>Recommended For You
-                            <span class="badge bg-dark ms-2">Based on your interests</span>
-                        </h5>
-                        <p class="text-muted small mb-3">Personalized suggestions based on your search history and preferences</p>
-                        
-                        <div class="row g-3" id="recommendationsContainer">
-                            @foreach (var recommendation in ((List<CityPulse.Models.Announcement>)ViewBag.Recommendations).Take(3))
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-dark shadow-sm" id="recommendationsCard" style="border-width: 2px; border-radius: 15px; background: #ffffff;">
+                <div class="card-body">
+                    <h5 class="card-title text-dark fw-bold mb-3">
+                        <i class="bi bi-stars me-2"></i>Recommended For You
+                        <span class="badge bg-dark ms-2">Based on your interests</span>
+                    </h5>
+                    <p class="text-muted small mb-3">Personalized suggestions based on your search history and preferences</p>
+                    
+                    <div class="row g-3" id="recommendationsContainer">
+                        @{
+                            var recommendationsToShow = new List<CityPulse.Models.Announcement>();
+                            
+                            if (ViewBag.Recommendations != null && ((List<CityPulse.Models.Announcement>)ViewBag.Recommendations).Any())
                             {
-                                <div class="col-12 col-md-6 col-lg-4">
-                                    <div class="card h-100 shadow-sm hover-lift border-0" style="cursor: pointer;" data-announcement-id="@recommendation.Id">
-                                        <div class="card-body">
-                                            <span class="badge @GetCategoryBadgeClass(recommendation.Category) mb-2">
-                                                <i class="@GetCategoryIcon(recommendation.Category) me-1"></i>@recommendation.Category
-                                            </span>
-                                            <h6 class="fw-bold mb-2">@recommendation.Title</h6>
-                                            <p class="text-muted small mb-2">
-                                                <i class="bi bi-calendar3 me-1"></i>@recommendation.Date.ToString("MMM dd, yyyy")
-                                            </p>
-                                            <p class="card-text small">@(recommendation.Description.Length > 100 ? recommendation.Description.Substring(0, 100) + "..." : recommendation.Description)</p>
-                                        </div>
+                                recommendationsToShow = ((List<CityPulse.Models.Announcement>)ViewBag.Recommendations).Take(3).ToList();
+                            }
+                            else
+                            {
+                                recommendationsToShow = Model.Take(3).ToList();
+                            }
+                        }
+                        
+                        @foreach (var recommendation in recommendationsToShow)
+                        {
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div class="card h-100 shadow-sm hover-lift border-0" style="cursor: pointer;" data-announcement-id="@recommendation.Id">
+                                    <div class="card-body">
+                                        <span class="badge @GetCategoryBadgeClass(recommendation.Category) mb-2">
+                                            <i class="@GetCategoryIcon(recommendation.Category) me-1"></i>@recommendation.Category
+                                        </span>
+                                        <h6 class="fw-bold mb-2">@recommendation.Title</h6>
+                                        <p class="text-muted small mb-2">
+                                            <i class="bi bi-calendar3 me-1"></i>@recommendation.Date.ToString("MMM dd, yyyy")
+                                        </p>
+                                        <p class="card-text small">@(recommendation.Description.Length > 100 ? recommendation.Description.Substring(0, 100) + "..." : recommendation.Description)</p>
                                     </div>
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
         </div>
-    }
+    </div>
 
     <!-- Results Summary -->
     <div class="row mb-3">
